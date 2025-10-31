@@ -51,6 +51,17 @@
                 </li>
                 @endif
 
+                <!-- Induction Training -->
+                @if(Auth::user()->hasPermission('view_own_induction_training'))
+                <li class="nav-item">
+                    <a href="{{ route('induction.training') }}" 
+                       class="nav-link {{ request()->routeIs('induction.training*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-chalkboard-teacher"></i>
+                        <p>Induction Training</p>
+                    </a>
+                </li>
+                @endif
+
                 <!-- Add more menu items below as needed -->
             </ul>
         </nav>

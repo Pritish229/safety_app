@@ -73,6 +73,6 @@ class AuthController extends Controller
         if ($user->hasPermission('view-dashboard')) {
             return route('dashboard');
         }
-        return route('unauthorized'); 
+       return route('dashboard');
     }
 }
