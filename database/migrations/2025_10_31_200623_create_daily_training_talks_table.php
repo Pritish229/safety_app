@@ -16,6 +16,12 @@ return new class extends Migration
                 ->constrained('users')
                 ->onDelete('cascade');
 
+            // 🔹 Link to the related project
+            $table->foreignId('project_id')
+                ->nullable()
+                ->constrained('projects')
+                ->onDelete('set null');
+
             // 🔹 Form fields
             $table->string('location')->nullable();
             $table->string('contractor_name')->nullable();
@@ -23,10 +29,10 @@ return new class extends Migration
             $table->integer('duration_seconds')->nullable();
             $table->text('topics_discussed')->nullable();
 
-            // 🔹 Optional photo path (upload/take photo)
+            // 🔹 Optional photo
             $table->string('photo_path')->nullable();
 
-            // 🔹 Status
+            // 🔹 Workflow status
             $table->enum('status', ['draft', 'submitted', 'reviewed', 'closed'])
                   ->default('submitted');
 

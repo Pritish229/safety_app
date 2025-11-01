@@ -24,6 +24,11 @@ class PermissionSeeder extends Seeder
             ['name' => 'edit-roles', 'description' => 'Edit existing roles'],
             ['name' => 'delete-roles', 'description' => 'Delete roles'],
 
+            // 🔹 Site Roles Management
+            ['name' => 'view-site_manager', 'description' => 'View site manager resources'],
+            ['name' => 'manage-site_manager', 'description' => 'Manage site manager activities'],
+            ['name' => 'view-site_officer', 'description' => 'View site officer resources'],
+            ['name' => 'manage-site_officer', 'description' => 'Manage site officer activities'],
 
             // 🔹 Safety Observation
             ['name' => 'view_own_safety_observation', 'description' => 'View own safety observations'],
@@ -97,7 +102,11 @@ class PermissionSeeder extends Seeder
             ['name' => 'add_own_good_practice', 'description' => 'Add new good practices'],
             ['name' => 'edit_own_good_practice', 'description' => 'Edit own good practices'],
 
-
+            ['name' => 'view_projects', 'description' => 'View all projects'],
+            ['name' => 'add_projects', 'description' => 'Add new projects'],
+            ['name' => 'edit_projects', 'description' => 'Edit project details'],
+            ['name' => 'delete_projects', 'description' => 'Delete existing projects'],
+            ['name' => 'assign_site_officers', 'description' => 'Assign or remove site officers from a project'],
         ];
 
         foreach ($permissions as $perm) {

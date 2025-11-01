@@ -11,6 +11,7 @@ class InductionTraining extends Model
 
     protected $fillable = [
         'user_id',
+        'project_id',
         'location',
         'contractor_name',
         'num_persons_attended',
@@ -22,5 +23,10 @@ class InductionTraining extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
     }
 }

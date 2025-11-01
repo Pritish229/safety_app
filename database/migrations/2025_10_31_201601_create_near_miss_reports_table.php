@@ -11,10 +11,16 @@ return new class extends Migration
         Schema::create('near_miss_reports', function (Blueprint $table) {
             $table->id();
 
-            // 🔹 Foreign key: the user who submitted the report
+            // 🔹 Link to user who submitted the report
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->onDelete('cascade');
+
+            // 🔹 Link to the related project
+            $table->foreignId('project_id')
+                ->nullable()
+                ->constrained('projects')
+                ->onDelete('set null');
 
             // 🔹 Report details
             $table->dateTime('date_time')->nullable();
@@ -31,7 +37,7 @@ return new class extends Migration
 
             // 🔹 Status tracking
             $table->enum('status', ['draft', 'submitted', 'reviewed', 'closed'])
-                ->default('submitted');
+                  ->default('submitted');
 
             $table->timestamps();
         });

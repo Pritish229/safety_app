@@ -14,6 +14,10 @@ return new class extends Migration
         Schema::create('saws', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('project_id')
+                ->nullable()
+                ->constrained('projects')
+                ->onDelete('set null');
             $table->text('observation')->nullable();
             $table->string('location')->nullable();
             $table->enum('security_level', [1, 2, 3, 4, 5])->nullable();

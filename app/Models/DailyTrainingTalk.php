@@ -13,6 +13,7 @@ class DailyTrainingTalk extends Model
 
     protected $fillable = [
         'user_id',
+        'project_id',
         'location',
         'contractor_name',
         'number_of_persons',
@@ -23,7 +24,7 @@ class DailyTrainingTalk extends Model
     ];
 
     /**
-     * 🔹 Each DTT report belongs to a user
+     * 🔹 Each DTT belongs to a user
      */
     public function user()
     {
@@ -31,11 +32,19 @@ class DailyTrainingTalk extends Model
     }
 
     /**
-     * 🔹 Accessor for readable status label
+     * 🔹 Each DTT belongs to a project
+     */
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+
+    /**
+     * 🔹 Accessor for a readable status label
      */
     public function getStatusLabelAttribute(): string
     {
-        return ucfirst($this->status ?? 'submitted');
+        return ucfirst($this->status ?? 'Submitted');
     }
 
     /**
@@ -44,8 +53,11 @@ class DailyTrainingTalk extends Model
     protected static function booted()
     {
         static::deleting(function ($talk) {
-            if ($talk->photo_path && file_exists(public_path($talk->photo_path))) {
-                @unlink(public_path($talk->photo_path));
+            if ($talk->photo_path) {
+                $path = public_path($talk->photo_path);
+                if (file_exists($path)) {
+                    @unlink($path);
+                }
             }
         });
     }

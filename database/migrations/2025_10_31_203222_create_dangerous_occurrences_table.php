@@ -14,6 +14,10 @@ return new class extends Migration
         Schema::create('dangerous_occurrences', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('project_id')
+                ->nullable()
+                ->constrained('projects')
+                ->onDelete('set null');
             $table->text('description')->nullable();
             $table->string('location')->nullable();
             $table->string('reporting_person')->nullable();

@@ -15,20 +15,20 @@ return new class extends Migration
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->onDelete('cascade');
+            $table->foreignId('project_id')
+                ->nullable()
+                ->constrained('projects')
+                ->onDelete('set null');
 
             // 🔹 Form fields
             $table->string('location')->nullable();
             $table->string('contractor_name')->nullable();
-            $table->integer('number_of_persons')->nullable();
+            $table->integer('num_persons_attended')->nullable();
             $table->integer('duration_seconds')->nullable();
-            $table->text('topics_name')->nullable();
+            $table->text('topics_discussed')->nullable();
 
             // 🔹 Optional photo upload
-            $table->string('photo_path')->nullable();
-
-            // 🔹 Status
-            $table->enum('status', ['draft', 'submitted', 'reviewed', 'closed'])
-                ->default('submitted');
+            $table->string('photo')->nullable();
 
             $table->timestamps();
         });

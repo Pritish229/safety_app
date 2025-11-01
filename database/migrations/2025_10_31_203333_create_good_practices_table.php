@@ -14,6 +14,10 @@ return new class extends Migration
         Schema::create('good_practices', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
+            $table->foreignId('project_id')
+                ->nullable()
+                ->constrained('projects')
+                ->onDelete('set null');
             $table->string('location')->nullable();
             $table->string('responsible_person')->nullable();
             $table->text('description')->nullable();

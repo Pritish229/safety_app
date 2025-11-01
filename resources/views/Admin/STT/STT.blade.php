@@ -1,18 +1,18 @@
 @extends('Admin.layout.app')
 
-@section('title', 'Induction Training')
+@section('title', 'Special Technical Training')
 
 @section('content')
 <div class="content-header">
     <div class="container-fluid">
         <div class="row mb-2">
             <div class="col-sm-6">
-                <h1 class="m-0">Induction Training</h1>
+                <h1 class="m-0">Special Technical Training</h1>
             </div>
             <div class="col-sm-6">
                 <ol class="breadcrumb float-sm-right">
                     <li class="breadcrumb-item"><a href="{{ url('/') }}">Home</a></li>
-                    <li class="breadcrumb-item active">Induction Training</li>
+                    <li class="breadcrumb-item active">Special Technical Training</li>
                 </ol>
             </div>
         </div>
@@ -23,13 +23,11 @@
     <div class="container-fluid">
         <div class="card">
             <div class="card-header d-flex align-items-center">
-                <button class="btn btn-primary btn-sm" id="addNew">
-                    + Add New
-                </button>
+                <button class="btn btn-primary btn-sm" id="addNew">+ Add New</button>
             </div>
 
             <div class="card-body">
-                <table id="inductionTable" class="table table-bordered table-striped table-hover">
+                <table id="sttTable" class="table table-bordered table-striped table-hover">
                     <thead>
                         <tr>
                             <th>#</th>
@@ -38,7 +36,7 @@
                             <th>Contractor</th>
                             <th>Persons</th>
                             <th>Duration</th>
-                            <th>Notes</th>
+                            <th>Topics</th>
                             <th>Photo</th>
                             <th>Date</th>
                             <th>Action</th>
@@ -52,19 +50,19 @@
 </div>
 
 <!-- Add/Edit Modal -->
-<div class="modal fade" id="inductionModal" tabindex="-1">
+<div class="modal fade" id="sttModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
-        <form id="inductionForm" enctype="multipart/form-data">
+        <form id="sttForm" enctype="multipart/form-data">
             @csrf
 
-            <!-- Hidden fields – project_id filled by JS -->
+            <!-- HIDDEN PROJECT ID -->
             <input type="hidden" name="project_id" id="project_id">
             <input type="hidden" id="record_id" name="record_id">
 
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white">
-                    <h5 class="modal-title">Add Induction Training</h5>
-                    <button type="button" class="close text-white" data-dismiss="modal">x</button>
+                    <h5 class="modal-title">Add Special Technical Training</h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">×</button>
                 </div>
 
                 <div class="modal-body">
@@ -86,7 +84,7 @@
                         </div>
                     </div>
 
-                    <x-textarea name="notes" label="Notes" placeholder="Enter additional notes..." rows="4" />
+                    <x-textarea name="topics_discussed" label="Topics Discussed" placeholder="Enter topics covered..." rows="4" />
 
                     <div class="form-group">
                         <label for="photo">Photo <small class="text-muted">(Optional)</small></label>
@@ -101,12 +99,8 @@
                 </div>
 
                 <div class="modal-footer">
-                    <button type="submit" class="btn btn-success">
-                        Save
-                    </button>
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
-                        Close
-                    </button>
+                    <button type="submit" class="btn btn-success">Save</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
         </form>
@@ -118,8 +112,8 @@
     <div class="modal-dialog modal-xl">
         <div class="modal-content">
             <div class="modal-header bg-info text-white">
-                <h5 class="modal-title">View Induction Training</h5>
-                <button type="button" class="close text-white" data-dismiss="modal">x</button>
+                <h5 class="modal-title">View Special Technical Training</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">×</button>
             </div>
 
             <div class="modal-body">
@@ -147,8 +141,8 @@
                                 <td id="view_duration"></td>
                             </tr>
                             <tr>
-                                <th>Notes</th>
-                                <td id="view_notes"></td>
+                                <th>Topics Discussed</th>
+                                <td id="view_topics"></td>
                             </tr>
                             <tr>
                                 <th>Date & Time</th>
@@ -177,16 +171,13 @@
 
 @section('scripts')
 <script>
-    const storageBaseUrl = "{{ asset('storage') }}";
+    const storageUrl = "{{ asset('storage') }}";
 
     $(function () {
-        // ──────────────────────────────────────────────────────────────
-        // 1. FETCH ASSIGNED PROJECT (runs once)
+        // 1. FETCH ASSIGNED PROJECT ON PAGE LOAD
         $.get("{{ route('get.assigned.project') }}", function (res) {
             if (res.success && res.project_id) {
                 $('#project_id').val(res.project_id);
-                // Optional: show project name in modal title or toast
-                // toastr.success('Project: ' + res.project_name);
             } else {
                 toastr.warning(res.message || 'No project assigned.');
                 $('#addNew').prop('disabled', true);
@@ -196,37 +187,34 @@
             $('#addNew').prop('disabled', true);
         });
 
-        // ──────────────────────────────────────────────────────────────
-        // 2. DataTable
-        let table = $('#inductionTable').DataTable({
+        // 2. DATATABLE
+        let table = $('#sttTable').DataTable({
             processing: true,
             serverSide: true,
-            ajax: "{{ route('induction.training') }}",
+            ajax: "{{ route('special.technical.training') }}",
             columns: [
-                { data: 'DT_RowIndex', name: 'DT_RowIndex', orderable: false, searchable: false },
+                { data: 'DT_RowIndex', orderable: false, searchable: false },
                 { data: 'project_name', name: 'project_name' },
                 { data: 'location', name: 'location' },
                 { data: 'contractor_name', name: 'contractor_name' },
                 { data: 'num_persons_attended', name: 'num_persons_attended' },
                 { data: 'duration_seconds', name: 'duration_seconds' },
-                { data: 'notes', name: 'notes', defaultContent: '—' },
-                { data: 'photo', name: 'photo', orderable: false, searchable: false },
+                { data: 'topics_discussed', name: 'topics_discussed', defaultContent: '—' },
+                {
+                    data: 'photo',
+                    orderable: false,
+                    searchable: false,
+                   
+                },
                 { data: 'formatted_date', name: 'formatted_date' },
                 {
                     data: 'action',
-                    name: 'action',
                     orderable: false,
                     searchable: false,
-                    render: function (data, type, row) {
-                        return `
-                            <button class="btn btn-info btn-sm viewBtn" data-id="${row.id}" title="View">
-                                <i class="fas fa-eye"></i>
-                            </button>
-                            <button class="btn btn-primary btn-sm editBtn" data-id="${row.id}" title="Edit">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        `;
-                    }
+                    render: (d, t, r) => `
+                        <button class="btn btn-info btn-sm viewBtn" data-id="${r.id}"><i class="fas fa-eye"></i></button>
+                        <button class="btn btn-primary btn-sm editBtn" data-id="${r.id}"><i class="fas fa-edit"></i></button>
+                    `
                 }
             ],
             responsive: true,
@@ -234,56 +222,53 @@
             lengthMenu: [10, 25, 50, 100]
         });
 
-        // ──────────────────────────────────────────────────────────────
-        // 3. Add New
+        // 3. ADD NEW
         $('#addNew').click(function () {
-            $('#inductionForm')[0].reset();
+            $('#sttForm')[0].reset();
             $('#record_id').val('');
             $('#previewImage').hide();
-            $('#inductionModal .modal-title').text('Add Induction Training');
-            $('#inductionModal').modal('show');
+            $('#sttModal .modal-title').text('Add Special Technical Training');
+            $('#sttModal').modal('show');
         });
 
-        // ──────────────────────────────────────────────────────────────
-        // 4. Edit
+        // 4. EDIT
         $(document).on('click', '.editBtn', function () {
-            let id = $(this).data('id');
-            $.get("{{ route('induction.training') }}/" + id + "/Edit", function (data) {
+            const id = $(this).data('id');
+            $.get("{{ route('special.technical.training') }}/" + id + "/Edit", function (data) {
                 $('#record_id').val(data.id);
+                $('#project_id').val(data.project_id); // Critical
                 $('#location').val(data.location);
                 $('#contractor_name').val(data.contractor_name);
                 $('#num_persons_attended').val(data.num_persons_attended);
                 $('#duration_seconds').val(data.duration_seconds);
-                $('#notes').val(data.notes);
-                $('#project_id').val(data.project_id); // ← Critical for edit
+                $('#topics_discussed').val(data.topics_discussed);
 
                 if (data.photo) {
-                    $('#previewImage').attr('src', `${storageBaseUrl}/${data.photo}`).show();
+                    $('#previewImage').attr('src', storageUrl + '/' + data.photo).show();
                 } else {
                     $('#previewImage').hide();
                 }
 
-                $('#inductionModal .modal-title').text('Edit Induction Training');
-                $('#inductionModal').modal('show');
+                $('#sttModal .modal-title').text('Edit Special Technical Training');
+                $('#sttModal').modal('show');
             });
         });
 
-        // ──────────────────────────────────────────────────────────────
-        // 5. View
+        // 5. VIEW
         $(document).on('click', '.viewBtn', function () {
-            let id = $(this).data('id');
-            $.get("{{ route('induction.training') }}/" + id)
+            const id = $(this).data('id');
+            $.get("{{ route('special.technical.training') }}/" + id)
                 .done(function (data) {
                     $('#view_project').text(data.project_name || '—');
                     $('#view_location').text(data.location);
                     $('#view_contractor').text(data.contractor_name);
                     $('#view_persons').text(data.num_persons_attended);
                     $('#view_duration').text(data.duration_seconds + ' seconds');
-                    $('#view_notes').text(data.notes || '—');
+                    $('#view_topics').text(data.topics_discussed || '—');
                     $('#view_date').text(data.formatted_date);
 
                     if (data.photo) {
-                        $('#view_photo').attr('src', `${storageBaseUrl}/${data.photo}`).show();
+                        $('#view_photo').attr('src', storageUrl + '/' + data.photo).show();
                         $('#no_photo').hide();
                     } else {
                         $('#view_photo').hide();
@@ -292,52 +277,41 @@
 
                     $('#viewModal').modal('show');
                 })
-                .fail(function () {
-                    toastr.error('Failed to load record.');
-                });
+                .fail(() => toastr.error('Failed to load record.'));
         });
 
-        // ──────────────────────────────────────────────────────────────
-        // 6. Image Preview
+        // 6. IMAGE PREVIEW
         $('#photo').on('change', function (e) {
-            let file = e.target.files[0];
+            const file = e.target.files[0];
             if (file) {
-                let reader = new FileReader();
-                reader.onload = function (e) {
-                    $('#previewImage').attr('src', e.target.result).show();
-                };
+                const reader = new FileReader();
+                reader.onload = ev => $('#previewImage').attr('src', ev.target.result).show();
                 reader.readAsDataURL(file);
             }
         });
 
-        // ──────────────────────────────────────────────────────────────
-        // 7. Save / Update
-        $('#inductionForm').submit(function (e) {
+        // 7. SAVE / UPDATE
+        $('#sttForm').submit(function (e) {
             e.preventDefault();
-            let id = $('#record_id').val();
-            let formData = new FormData(this);
+            const id = $('#record_id').val();
+            const formData = new FormData(this);
 
-            let url = id
-                ? "{{ route('induction.training') }}/" + id + "/Update"
-                : "{{ route('induction.training.store') }}";
+            const url = id
+                ? "{{ route('special.technical.training') }}/" + id + "/Update"
+                : "{{ route('special.technical.training.store') }}";
 
             $.ajax({
-                url: url,
-                type: "POST",
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function (res) {
-                    $('#inductionModal').modal('hide');
+                url, type: "POST", data: formData,
+                contentType: false, processData: false,
+                success: res => {
+                    $('#sttModal').modal('hide');
                     table.ajax.reload();
                     toastr.success(res.success || 'Saved successfully!');
                 },
-                error: function (xhr) {
-                    let errors = xhr.responseJSON?.errors;
+                error: xhr => {
+                    const errors = xhr.responseJSON?.errors;
                     if (errors) {
-                        $.each(errors, function (key, value) {
-                            toastr.error(value[0]);
-                        });
+                        $.each(errors, (k, v) => toastr.error(v[0]));
                     } else {
                         toastr.error('Something went wrong.');
                     }

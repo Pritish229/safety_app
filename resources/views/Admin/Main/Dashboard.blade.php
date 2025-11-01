@@ -38,7 +38,7 @@
                         <p class="card-text">
                             This is your dashboard. Use the navigation to access modules, view reports, and manage settings.
                         </p>
-                        <a href="#" class="btn btn-primary">Get Started</a>
+                        
                     </div>
                 </div>
             </div>

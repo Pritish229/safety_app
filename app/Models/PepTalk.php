@@ -11,6 +11,7 @@ class PepTalk extends Model
 
     protected $fillable = [
         'user_id',
+        'project_id',
         'location',
         'contractor_name',
         'num_persons_attended',
@@ -18,5 +19,9 @@ class PepTalk extends Model
         'topics_discussed',
         'photo'
     ];
-}
 
+    public function project()
+    {
+        return $this->belongsTo(Project::class);
+    }
+}

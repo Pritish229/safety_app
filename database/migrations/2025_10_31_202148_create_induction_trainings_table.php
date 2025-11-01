@@ -13,6 +13,10 @@ return new class extends Migration
     {
         Schema::create('induction_trainings', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('project_id')
+                ->nullable()
+                ->constrained('projects')
+                ->onDelete('set null');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->string('location')->nullable();
             $table->string('contractor_name')->nullable();

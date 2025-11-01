@@ -15,17 +15,14 @@ return new class extends Migration
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->onDelete('cascade');
-
-            // 🔹 Fields
-            $table->dateTime('date_time')->nullable();
+            $table->foreignId('project_id')
+                ->nullable()
+                ->constrained('projects')
+                ->onDelete('set null');
             $table->text('discussed_points')->nullable();
 
             // 🔹 Optional photo
-            $table->string('photo_path')->nullable();
-
-            // 🔹 Status for tracking
-            $table->enum('status', ['draft', 'submitted', 'reviewed', 'closed'])
-                ->default('submitted');
+            $table->string('photo')->nullable();
 
             $table->timestamps();
         });

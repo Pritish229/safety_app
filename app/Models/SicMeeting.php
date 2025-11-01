@@ -2,48 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class SicMeeting extends Model
 {
-    use HasFactory;
-
-    protected $table = 'sic_meetings';
-
     protected $fillable = [
         'user_id',
-        'date_time',
+        'project_id',
         'discussed_points',
-        'photo_path',
-        'status',
+        'photo',
     ];
 
-    /**
-     * 🔹 Each meeting belongs to a user
-     */
-    public function user()
+    // ADD THIS METHOD
+    public function project()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(Project::class);
     }
 
-    /**
-     * 🔹 Readable status
-     */
-    public function getStatusLabelAttribute(): string
+    // Optional: format date
+    public function getFormattedDateAttribute()
     {
-        return ucfirst($this->status ?? 'submitted');
-    }
-
-    /**
-     * 🔹 Delete attached photo when record is deleted
-     */
-    protected static function booted()
-    {
-        static::deleting(function ($meeting) {
-            if ($meeting->photo_path && file_exists(public_path($meeting->photo_path))) {
-                @unlink(public_path($meeting->photo_path));
-            }
-        });
+        return $this->created_at->format('d M Y, h:i A');
     }
 }

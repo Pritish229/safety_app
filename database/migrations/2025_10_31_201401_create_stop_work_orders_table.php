@@ -11,17 +11,23 @@ return new class extends Migration
         Schema::create('stop_work_orders', function (Blueprint $table) {
             $table->id();
 
-            // 🔹 Link to user who submitted the report
+            // 🔹 Link to the user who submitted the report
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->onDelete('cascade');
+
+            // 🔹 Link to the related project
+            $table->foreignId('project_id')
+                ->nullable()
+                ->constrained('projects')
+                ->onDelete('set null');
 
             // 🔹 Core fields
             $table->dateTime('date_time')->nullable();
             $table->text('observation')->nullable();
             $table->string('location')->nullable();
 
-            // 🔹 Security level enum (1–5)
+            // 🔹 Security level (1–5)
             $table->enum('security_level', ['1', '2', '3', '4', '5'])->nullable();
 
             $table->string('concerned_supervisor')->nullable();

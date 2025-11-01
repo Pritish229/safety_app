@@ -62,6 +62,49 @@
                 </li>
                 @endif
 
+                <!-- Pep Talk -->
+                @if(Auth::user()->hasPermission('view_own_pep_talk'))
+                <li class="nav-item">
+                    <a href="{{ route('pep.talk') }}" 
+                       class="nav-link {{ request()->routeIs('pep.talk*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-comments"></i>
+                        <p>Pep Talk</p>
+                    </a>
+                </li>
+                @endif
+                <!-- Special Technical Training -->
+                @if(Auth::user()->hasPermission('view_own_STT'))
+                <li class="nav-item">
+                    <a href="{{ route('special.technical.training') }}" 
+                       class="nav-link {{ request()->routeIs('special.technical.training*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-tools"></i>
+                        <p>Special Technical Training</p>
+                    </a>
+                </li>
+                @endif
+
+                @if(Auth::user()->hasPermission('view_own_sic_meetings'))
+                <li class="nav-item">
+                    <a href="{{ route('sic.meeting') }}" 
+                       class="nav-link {{ request()->routeIs('sic.meeting*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-handshake"></i>
+                        <p>SIC Meetings</p>
+                    </a>
+                </li>
+                @endif
+
+                @if(Auth::user()->hasPermission('view_projects'))
+                <li class="nav-item">
+                    <a href="{{ route('admin.projects') }}" 
+                       class="nav-link {{ request()->routeIs('admin.projects*') ? 'active' : '' }}">
+                        <i class="nav-icon fas fa-project-diagram"></i>
+                        <p>Projects</p>
+                    </a>
+                </li>
+                @endif
+
+                
+
                 <!-- Add more menu items below as needed -->
             </ul>
         </nav>

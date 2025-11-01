@@ -11,16 +11,22 @@ return new class extends Migration
         Schema::create('safety_observations', function (Blueprint $table) {
             $table->id();
 
-            // 🔹 Foreign key linking to users table
+            // 🔹 Link to user (who created the observation)
             $table->foreignId('user_id')
                 ->constrained('users')
                 ->onDelete('cascade');
 
-            // 🔹 Observation fields
+            // 🔹 Link to project
+            $table->foreignId('project_id')
+                ->nullable()
+                ->constrained('projects')
+                ->onDelete('set null');
+
+            // 🔹 Observation details
             $table->text('observation')->nullable();
             $table->string('location')->nullable();
 
-            // 🔹 ENUM Security Level (1–5)
+            // 🔹 Security Level (1–5)
             $table->enum('security_level', [
                 '1 - Low',
                 '2 - Moderate',
@@ -32,10 +38,10 @@ return new class extends Migration
             $table->string('responsible_person')->nullable();
             $table->text('recommended_action')->nullable();
 
-            // 🔹 Optional photo path
+            // 🔹 Optional photo
             $table->string('photo_path')->nullable();
 
-            // 🔹 Status (optional workflow)
+            // 🔹 Workflow status
             $table->enum('status', ['draft', 'submitted', 'reviewed', 'closed'])
                   ->default('submitted');
 

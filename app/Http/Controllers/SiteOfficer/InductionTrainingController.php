@@ -5,6 +5,7 @@ namespace App\Http\Controllers\SiteOfficer;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Models\InductionTraining;
+use App\Models\Project;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -15,38 +16,46 @@ class InductionTrainingController extends Controller
     public function index(Request $request)
     {
         if ($request->ajax()) {
-            $data = InductionTraining::where('user_id', Auth::id())->latest()->get();
+            $data = InductionTraining::with('project:id,name')
+                ->where('user_id', Auth::id())
+                ->latest()
+                ->get();
+
             return DataTables::of($data)
                 ->addIndexColumn()
-                ->addColumn('formatted_date', function ($row) {
-                    return Carbon::parse($row->created_at)->format('d M Y, h:i A');
-                })
+                ->addColumn('project_name', fn($row) => $row->project?->name ?? '—')
+                ->addColumn('formatted_date', fn($row) => Carbon::parse($row->created_at)->format('d M Y, h:i A'))
                 ->addColumn('photo', function ($row) {
-                    if ($row->photo) {
-                        return '<img src="' . asset('storage/' . $row->photo) . '" width="60" class="rounded">';
-                    }
-                    return '—';
+                    return $row->photo
+                        ? '<img src="' . asset('storage/' . $row->photo) . '" width="60" class="rounded">'
+                        : '—';
                 })
                 ->addColumn('action', function ($row) {
                     return '
-                        <button class="btn btn-info btn-sm viewBtn" data-id="' . $row->id . '">
-                            <i class="fas fa-eye"></i>
-                        </button>
-                        <button class="btn btn-primary btn-sm editBtn" data-id="' . $row->id . '">
-                            <i class="fas fa-edit"></i>
-                        </button>
-                    ';
+                    <button class="btn btn-info btn-sm viewBtn" data-id="' . $row->id . '">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                    <button class="btn btn-primary btn-sm editBtn" data-id="' . $row->id . '">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                ';
                 })
                 ->rawColumns(['photo', 'action'])
                 ->make(true);
         }
 
-        return view('Admin.InductionTraining.induction_training');
+        // Get projects assigned to this site officer via pivot
+        $projects = Project::whereHas('siteOfficers', function ($q) {
+            $q->where('site_officer_id', Auth::id());
+        })->select('id', 'name')->get();
+
+        return view('Admin.InductionTraining.induction_training', compact('projects'));
     }
 
     public function store(Request $request)
     {
         $request->validate([
+            'project_id' => 'required|exists:projects,id',
             'location' => 'required|string|max:255',
             'contractor_name' => 'required|string|max:255',
             'num_persons_attended' => 'required|integer|min:1',
@@ -59,6 +68,7 @@ class InductionTrainingController extends Controller
 
         InductionTraining::create([
             'user_id' => Auth::id(),
+            'project_id' => $request->project_id,
             'location' => $request->location,
             'contractor_name' => $request->contractor_name,
             'num_persons_attended' => $request->num_persons_attended,
@@ -81,6 +91,7 @@ class InductionTrainingController extends Controller
         $training = InductionTraining::where('user_id', Auth::id())->findOrFail($id);
 
         $request->validate([
+            'project_id' => 'required|exists:projects,id',
             'location' => 'required|string|max:255',
             'contractor_name' => 'required|string|max:255',
             'num_persons_attended' => 'required|integer|min:1',
@@ -89,38 +100,37 @@ class InductionTrainingController extends Controller
             'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        // 🔄 Update basic fields
-        $training->location = $request->location;
-        $training->contractor_name = $request->contractor_name;
-        $training->num_persons_attended = $request->num_persons_attended;
-        $training->duration_seconds = $request->duration_seconds;
-        $training->notes = $request->notes;
+        $training->fill([
+            'project_id' => $request->project_id,
+            'location' => $request->location,
+            'contractor_name' => $request->contractor_name,
+            'num_persons_attended' => $request->num_persons_attended,
+            'duration_seconds' => $request->duration_seconds,
+            'notes' => $request->notes,
+        ]);
 
-        // 🖼️ Handle image upload or retention
         if ($request->hasFile('photo')) {
-            // 🗑️ Delete old image if exists
             if ($training->photo && Storage::disk('public')->exists($training->photo)) {
                 Storage::disk('public')->delete($training->photo);
             }
 
-            // 📸 Store new image
-            $path = $request->file('photo')->store('induction_photos', 'public');
-            $training->photo = $path;
-        } else {
-            // 🚫 Keep old image (do nothing)
-            // Explicitly skip overwriting the existing photo
+            $training->photo = $request->file('photo')->store('induction_photos', 'public');
         }
 
         $training->save();
 
         return response()->json(['success' => 'Record updated successfully!']);
     }
+
     public function show($id)
     {
-        $record = InductionTraining::where('user_id', Auth::id())->findOrFail($id);
+        $record = InductionTraining::with('project:id,name')
+            ->where('user_id', Auth::id())
+            ->findOrFail($id);
 
         return response()->json([
             'id' => $record->id,
+            'project_name' => $record->project?->name ?? '—',
             'location' => $record->location,
             'contractor_name' => $record->contractor_name,
             'num_persons_attended' => $record->num_persons_attended,
